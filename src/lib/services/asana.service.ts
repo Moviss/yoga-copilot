@@ -71,4 +71,42 @@ export class AsanaService {
       },
     };
   }
+
+  /**
+   * Fetches a single asana by its ID from the database.
+   *
+   * @param {string} id - The UUID of the asana to retrieve.
+   * @returns {Promise<AsanaDTO | null>} A promise that resolves to the AsanaDTO object if found,
+   *                                      or null if no asana with the given ID exists.
+   * @throws {Error} If a database error occurs during the fetch operation (excluding the 'not found' case).
+   */
+  async getAsanaById(id: string): Promise<AsanaDTO | null> {
+    logger.info({ asanaId: id }, "Attempting to fetch asana by ID in AsanaService.");
+    const { data, error } = await this.supabase
+      .from("asanas")
+      .select("*") // Select all columns for a single asana view
+      .eq("id", id)
+      .single();
+
+    // Handle query errors
+    if (error) {
+      // If the error is "Row not found", it's not a server error, return null
+      if (error.code === "PGRST116") {
+        logger.warn({ asanaId: id }, "Asana not found in database (AsanaService).");
+        return null;
+      }
+      // For other errors, log and throw
+      logger.error({ err: error, asanaId: id }, "Supabase error fetching asana by ID in AsanaService");
+      throw new Error(`Failed to fetch asana with ID ${id} from database.`);
+    }
+
+    // If data is null/undefined (shouldn't happen with .single() if no error, but check anyway)
+    if (!data) {
+      logger.warn({ asanaId: id }, "Asana not found (no data returned) in database (AsanaService).");
+      return null;
+    }
+
+    logger.info({ asanaId: id }, "Successfully fetched asana by ID in AsanaService.");
+    return data as AsanaDTO; // Cast to AsanaDTO
+  }
 }
