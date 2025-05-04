@@ -13,16 +13,16 @@ const idSchema = z.string().uuid({ message: "Asana ID must be a valid UUID strin
 
 /**
  * Handles GET requests for the `/api/asanas/[id]` endpoint.
- * 
+ *
  * Retrieves a specific asana by its UUID, provided as a dynamic path parameter.
  * It validates the ID format, uses `AsanaService` to fetch the data from the database,
  * and handles various response scenarios (success, not found, invalid ID, server errors).
- * 
+ *
  * @param {APIContext} context - The Astro API context.
  * @param {object} context.params - Contains route parameters. Expects `id` to be the Asana UUID.
  * @param {object} context.locals - Contains locals, including the Supabase client instance (`supabase`).
  * @param {Request} context.request - The incoming request object, used here to extract the URL path for logging.
- * 
+ *
  * @returns {Promise<Response>} A Response object containing:
  *   - 200 OK: With the `AsanaDTO` object in the JSON body if the asana is found.
  *   - 400 Bad Request: If the provided `id` parameter is not a valid UUID.
